@@ -133,7 +133,7 @@ const server = http.createServer((req, res) => {
         <div class="card">
             <h3>🗄️ Private NAS Storage</h3>
             <p>Targeting Host Machine IPv6 Network Nodes</p>
-            <a href="http://[2001:8003:268e:c200:e56d:a040:b0a7:dc23]:8080" target="_blank" class="btn">Access Storage Deck</a>
+            <a href="http:/192.168.0.121:8080" target="_blank" class="btn">Access Storage Deck</a>
         </div>
         <div class="card" id="mc-card">
             <h3>🎮 Multiplayer Paper Server</h3>
