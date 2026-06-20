@@ -1,0 +1,10 @@
+{
+  "name": "main-dashboard",
+  "version": "1.0.0",
+  "description": "Central Operations Hub",
+  "main": "Main-board.js",
+  "scripts": {
+    "start": "node Main-board.js"
+  },
+  "dependencies": {}
+}
