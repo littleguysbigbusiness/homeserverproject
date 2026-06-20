@@ -7,7 +7,7 @@ const SESSION_COOKIE_NAME = 'hub_secure_token';
 
 // Master Access Profile
 const MASTER_USER = 'Aiden';
-const MASTER_PASS = 'admin123';
+const MASTER_PASS = '###catsarethebest20';
 
 const activeSessions = new Set();
 
@@ -116,7 +116,7 @@ const server = http.createServer((req, res) => {
             <h3>🗄️ Private NAS Storage</h3>
             <p>Targeting Host Machine IPv6 Network Nodes</p>
             <!-- Fixed URL utilizing your public local home lab IPv6 connection node -->
-            <a href="http://[2001:8003:268e:c200:e56d:a040:b0a7:dc23]:8080" target="_blank" class="btn">Access Storage Deck</a>
+            <a href="http://192.168.0.121:8080" target="_blank" class="btn">Access Storage Deck</a>
         </div>
         <div class="card" style="border-color:#22c55e;">
             <h3>🎮 Multiplayer Paper Server</h3>
