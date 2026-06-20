@@ -29,10 +29,14 @@ const server = http.createServer((req, res) => {
     const sessionToken = cookies[SESSION_COOKIE_NAME];
     const isAuthenticated = activeSessions.has(sessionToken);
 
-    // 🔗 UNBLOCKED API ENDPOINT: Receives live ping data from your MC machine
-    if (req.url === '/api/ping' && req.method === 'POST') {
+    // 🔗 FIXED UNBLOCKED API ENDPOINT: Changed to GET to bypass your router's 405 error
+    if (req.url === '/api/ping' && req.method === 'GET') {
         lastMinecraftPingTime = Date.now();
-        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.writeHead(200, { 
+            'Content-Type': 'application/json', 
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        });
         return res.end(JSON.stringify({ status: "synchronized", timestamp: lastMinecraftPingTime }));
     }
 
@@ -133,7 +137,8 @@ const server = http.createServer((req, res) => {
         <div class="card">
             <h3>🗄️ Private NAS Storage</h3>
             <p>Targeting Host Machine IPv6 Network Nodes</p>
-            <a href="http:/192.168.0.121:8080" target="_blank" class="btn">Access Storage Deck</a>
+            <!-- Fixed URL syntax mapping layout button link -->
+            <a href="http://192.168.0.121:8080" target="_blank" class="btn">Access Storage Deck</a>
         </div>
         <div class="card" id="mc-card">
             <h3>🎮 Multiplayer Paper Server</h3>
