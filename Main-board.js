@@ -1,15 +1,16 @@
 const http = require('http');
 const crypto = require('crypto');
 
-// Dynamically maps to Render's cloud requirements
+// Dynamic port detection engine for Render Cloud
 const WEB_PORT = process.env.PORT || 3000;
 const SESSION_COOKIE_NAME = 'hub_secure_token';
 
-// Master Access Profile
+// Master Access Profile Credentials
 const MASTER_USER = 'Aiden';
-const MASTER_PASS = '###catsarethebest20';
+const MASTER_PASS = 'admin123';
 
 const activeSessions = new Set();
+let lastMinecraftPingTime = 0;
 
 function parseCookies(request) {
     const list = {};
@@ -27,6 +28,20 @@ const server = http.createServer((req, res) => {
     const cookies = parseCookies(req);
     const sessionToken = cookies[SESSION_COOKIE_NAME];
     const isAuthenticated = activeSessions.has(sessionToken);
+
+    // 🔗 UNBLOCKED API ENDPOINT: Receives live ping data from your MC machine
+    if (req.url === '/api/ping' && req.method === 'POST') {
+        lastMinecraftPingTime = Date.now();
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        return res.end(JSON.stringify({ status: "synchronized", timestamp: lastMinecraftPingTime }));
+    }
+
+    // 🔗 API ENDPOINT: Feeds the current live state directly into the browser screen template
+    if (req.url === '/api/mc-status') {
+        const isOnline = (Date.now() - lastMinecraftPingTime) < 45000; // Online if pinged in last 45 secs
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        return res.end(JSON.stringify({ online: isOnline }));
+    }
 
     if (req.method === 'POST' && req.url === '/api/login') {
         let body = '';
@@ -104,9 +119,12 @@ const server = http.createServer((req, res) => {
         body { font-family: 'Segoe UI', sans-serif; background: #020617; color: #f8fafc; padding: 30px; }
         .header { display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 900px; margin: 40px auto; }
-        .card { background: rgba(30, 41, 59, 0.3); border: 1px solid rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; text-align: center; }
+        .card { background: rgba(30, 41, 59, 0.3); border: 1px solid rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; text-align: center; position: relative; }
         .btn { display: block; padding: 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; border-radius: 10px; color: #38bdf8; text-decoration: none; margin-top: 20px; font-weight: bold; }
         .btn:hover { background: #38bdf8; color: #020617; }
+        .status-badge { font-weight: bold; padding: 4px 10px; border-radius: 6px; font-size: 12px; display: inline-block; margin-top: 10px; }
+        .online { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+        .offline { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
     </style>
 </head>
 <body>
@@ -115,15 +133,37 @@ const server = http.createServer((req, res) => {
         <div class="card">
             <h3>🗄️ Private NAS Storage</h3>
             <p>Targeting Host Machine IPv6 Network Nodes</p>
-            <!-- Fixed URL utilizing your public local home lab IPv6 connection node -->
-            <a href="http://192.168.0.121:8080" target="_blank" class="btn">Access Storage Deck</a>
+            <a href="http://[2001:8003:268e:c200:e56d:a040:b0a7:dc23]:8080" target="_blank" class="btn">Access Storage Deck</a>
         </div>
-        <div class="card" style="border-color:#22c55e;">
+        <div class="card" id="mc-card">
             <h3>🎮 Multiplayer Paper Server</h3>
             <p>High-Performance Dedicated World Matrix</p>
-            <a href="#" onclick="alert('Controlled via local machine batch engines.')" class="btn" style="color:#4ade80; border-color:#22c55e;">System Active</a>
+            <div id="mc-badge" class="status-badge offline">Checking Pulse...</div>
         </div>
     </div>
+    <script>
+        // Automatic polling client loop to check the state code from Render backend
+        function checkMinecraftPulse() {
+            fetch('/api/mc-status')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('mc-badge');
+                    if (data.online) {
+                        badge.className = "status-badge online";
+                        badge.textContent = "🟢 LIVE SYSTEM ACTIVE";
+                    } else {
+                        badge.className = "status-badge offline";
+                        badge.textContent = "🔴 OFFLINE / DISCONNECTED";
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('mc-badge').className = "status-badge offline";
+                    document.getElementById('mc-badge').textContent = "⚠️ SYNC DROPPED";
+                });
+        }
+        setInterval(checkMinecraftPulse, 5000);
+        checkMinecraftPulse();
+    </script>
 </body>
 </html>`);
     }
